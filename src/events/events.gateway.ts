@@ -4,13 +4,12 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsResponse,
 } from '@nestjs/websockets';
-import { from, Observable } from 'rxjs';
 import { Socket } from 'socket.io';
 import { EventsService } from './events.service';
 import { Server } from 'socket.io';
 import { v4 } from 'uuid';
+import { Session } from './interfaces/session.interface';
 
 @WebSocketGateway({
   cors: {
@@ -23,20 +22,13 @@ export class EventsGateway {
 
   constructor(private readonly eventsService: EventsService) { }
 
-  handleConnection(socket: Socket) {
-    const uuid = v4();
-    console.log(`Connected with socket ID: ${socket.id}`)
-    socket.emit('update_session_id', uuid)
-    this.eventsService.saveSession({ socket_id: socket.id, session_id: uuid})
-  }
-  
+  // Lifecycle hooks interface
+
   handleDisconnect(socket: Socket) {
     console.log(`Disconnected with socket ID: ${socket.id}`)
   }
 
-  @SubscribeMessage('events')
-  findAll(@MessageBody() data: any): Observable<WsResponse<number>> {
-    return from([1, 2, 3].map(item => ({ event: 'events', data: item })))
+  // Custom events
   }
 
   @SubscribeMessage('cell_click')
@@ -50,7 +42,7 @@ export class EventsGateway {
   @SubscribeMessage('quick_match')
   async quickMatch(@MessageBody() data: any, @ConnectedSocket() socket: Socket): Promise<string> {
     const uuid = v4();
-    this.eventsService.addToQueue({socket_id: socket.id, session_id: uuid})
+    this.eventsService.addToQueue({ socket_id: socket.id, session_id: uuid })
     return 'received'
   }
 }
