@@ -34,4 +34,15 @@ export class EventsService {
             }
         }))
     }
+
+    // Find
+
+    findSessionWithSessionId(session_id: string): Session | undefined {
+        return this.sessions.find(session => session.session_id === session_id)
+    }
+
+    findSessionWithSocketId(socket_id: string): Session | undefined {
+        return this.sessions.find(session => session.socket_id === socket_id)
+    }
+
 }
