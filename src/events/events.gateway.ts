@@ -23,6 +23,17 @@ export class EventsGateway {
 
   constructor(private readonly eventsService: EventsService) { }
 
+  handleConnection(socket: Socket) {
+    const uuid = v4();
+    console.log(`Connected with socket ID: ${socket.id}`)
+    socket.emit('update_session_id', uuid)
+    this.eventsService.saveSession({ socket_id: socket.id, session_id: uuid})
+  }
+  
+  handleDisconnect(socket: Socket) {
+    console.log(`Disconnected with socket ID: ${socket.id}`)
+  }
+
   @SubscribeMessage('events')
   findAll(@MessageBody() data: any): Observable<WsResponse<number>> {
     return from([1, 2, 3].map(item => ({ event: 'events', data: item })))
