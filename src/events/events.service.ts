@@ -51,6 +51,22 @@ export class EventsService {
         this.findSessionWithSessionId(session_id).socket_id = socket_id;
     }
 
+    // When a socket is disconnected: Set time out to delete a session after 10 minutes 
+    setSessionTimeout(socket_id: string): any {
+        console.log(socket_id)
+        const foundSession = this.findSessionWithSocketId(socket_id)
+        if (foundSession) {
+            foundSession.timeout = setTimeout(() => {
+                this.deleteSession(socket_id, null)
+            }, 600000)
+        }
+    }
+
+    clearSessionTimeout(session_id: string): any {
+        const foundSession = this.findSessionWithSessionId(session_id)
+        if (foundSession) clearTimeout(foundSession.timeout)
+    }
+
     // Delete
 
     deleteSession(socket_id: string, session_id: string) {
