@@ -46,4 +46,11 @@ export class EventsGateway {
     let col = String.fromCharCode('a'.charCodeAt(0) + ((num - 1) % 8));
     return row + col;
   }
+
+  @SubscribeMessage('quick_match')
+  async quickMatch(@MessageBody() data: any, @ConnectedSocket() socket: Socket): Promise<string> {
+    const uuid = v4();
+    this.eventsService.addToQueue({socket_id: socket.id, session_id: uuid})
+    return 'received'
+  }
 }
