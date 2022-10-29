@@ -9,7 +9,8 @@ import {
 import { from, Observable } from 'rxjs';
 import { Socket } from 'socket.io';
 import { EventsService } from './events.service';
-// import { Server } from 'socket.io';
+import { Server } from 'socket.io';
+import { v4 } from 'uuid';
 
 @WebSocketGateway({
   cors: {
@@ -17,18 +18,14 @@ import { EventsService } from './events.service';
   },
 })
 export class EventsGateway {
-  // @WebSocketServer()
-  // server: Server;
+  @WebSocketServer()
+  server: Server;
+
   constructor(private readonly eventsService: EventsService) { }
 
   @SubscribeMessage('events')
   findAll(@MessageBody() data: any): Observable<WsResponse<number>> {
     return from([1, 2, 3].map(item => ({ event: 'events', data: item })))
-  }
-
-  @SubscribeMessage('identity')
-  async identity(@MessageBody() data: number): Promise<number> {
-    return data;
   }
 
   @SubscribeMessage('cell_click')
