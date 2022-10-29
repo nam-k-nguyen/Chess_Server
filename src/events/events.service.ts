@@ -45,4 +45,18 @@ export class EventsService {
         return this.sessions.find(session => session.socket_id === socket_id)
     }
 
+    // Update
+
+    updateSocketId(socket_id: string, session_id: string) {
+        this.findSessionWithSessionId(session_id).socket_id = socket_id;
+    }
+
+    // Delete
+
+    deleteSession(socket_id: string, session_id: string) {
+        const indexToDelete = this.sessions.findIndex(session => {
+            return session.socket_id === socket_id || session.session_id === session_id
+        })
+        this.sessions.splice(indexToDelete, 1);
+    }
 }
