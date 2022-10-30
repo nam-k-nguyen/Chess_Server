@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
+import { v4 } from 'uuid';
 
 import { Session } from './interfaces/session.interface';
 import { Match } from './interfaces/match.interface';
@@ -53,10 +54,14 @@ export class EventsService {
         return this.waiting_queue.find(player => player.socket_id === socket_id)
     }
 
+
     // Update
 
-    updateSocketId(socket_id: string, session_id: string) {
+    updateSocketIdOfSession(socket_id: string, session_id: string) {
         this.findSessionWithSessionId(session_id).socket_id = socket_id;
+    }
+    updateSessionIdOfSession(socket_id: string, session_id: string) {
+        this.findSessionWithSocketId(socket_id).session_id = session_id;
     }
     updateSocketIdOfPlayerInQueue(socket_id: string, session_id: string) {
         this.findPlayerInQueueWithSessionId(session_id).socket_id = socket_id;
