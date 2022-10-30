@@ -45,10 +45,24 @@ export class EventsService {
         return this.sessions.find(session => session.socket_id === socket_id)
     }
 
+    findPlayerInQueueWithSessionId(session_id: string): Player | undefined {
+        return this.waiting_queue.find(player => player.session_id === session_id)
+    }
+
+    findPlayerInQueueWithSocketId(socket_id: string): Player | undefined {
+        return this.waiting_queue.find(player => player.socket_id === socket_id)
+    }
+
     // Update
 
     updateSocketId(socket_id: string, session_id: string) {
         this.findSessionWithSessionId(session_id).socket_id = socket_id;
+    }
+    updateSocketIdOfPlayerInQueue(socket_id: string, session_id: string) {
+        this.findPlayerInQueueWithSessionId(session_id).socket_id = socket_id;
+    }
+    updateSessionIdOfPlayerInQueue(socket_id: string, session_id: string) {
+        this.findPlayerInQueueWithSocketId(socket_id).session_id = session_id;
     }
 
     // When a socket is disconnected: Set time out to delete a session after 10 minutes 
@@ -74,5 +88,12 @@ export class EventsService {
             return session.socket_id === socket_id || session.session_id === session_id
         })
         this.sessions.splice(indexToDelete, 1);
+    }
+
+    deletePlayerInQueue(socket_id: string, session_id: string) {
+        const indexToDelete = this.waiting_queue.findIndex(player => {
+            return player.socket_id === socket_id || player.session_id === session_id
+        })
+        this.waiting_queue.splice(indexToDelete, 1);
     }
 }
