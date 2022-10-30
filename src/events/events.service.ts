@@ -101,4 +101,13 @@ export class EventsService {
         })
         this.waiting_queue.splice(indexToDelete, 1);
     }
+    handleUserQueue(socket_id: string, session_id: string) {
+        if (this.findPlayerInQueueWithSocketId(socket_id)) {
+            this.updateSessionIdOfPlayerInQueue(socket_id, session_id); return
+        }
+        if (this.findPlayerInQueueWithSessionId(session_id)) {
+            this.updateSocketIdOfPlayerInQueue(socket_id, session_id); return 
+        }
+        this.addToQueue({ socket_id: socket_id, session_id: session_id })
+    }
 }
