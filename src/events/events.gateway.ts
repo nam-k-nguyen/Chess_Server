@@ -34,21 +34,7 @@ export class EventsGateway {
   @SubscribeMessage('client_connect')
   clientConnect(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): any {
     console.log(`\nA new user has connected\n- session ID : ${session_id}\n-  socket ID : ${socket.id}`)
-
-    const found_session: Session | undefined = this.eventsService.findSessionWithSessionId(session_id)
-    const uuid: string = v4();
-
-    if (found_session) { // If client has a session ID that is in our sessions list
-      console.log('\nUser\'s session ID is in our sessions list\n', found_session)
-      this.eventsService.updateSocketId(socket.id, session_id);
-      this.eventsService.clearSessionTimeout(session_id)
-      this.eventsService.findSessionWithSessionId(session_id).timeout = null
-    }
-    else { // If client has a session ID that is NOT in our sessions list
-      console.log('\nUser\'s session ID is not in our session list\n')
-      socket.emit('update_session_id', uuid)
-      this.eventsService.addToSessions({ socket_id: socket.id, session_id: uuid, timeout: null })
-    }
+    this.eventsService.handleUserSession(socket, session_id);
   }
 
   @SubscribeMessage('cell_click')
