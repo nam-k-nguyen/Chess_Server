@@ -27,6 +27,7 @@ export class EventsGateway {
   handleDisconnect(socket: Socket) {
     console.log(`\nA user has disconnected\nsocket ID: ${socket.id}\n`)
     this.eventsService.setSessionTimeout(socket.id)
+    this.eventsService.deletePlayerInQueue(socket.id, null);
   }
 
   // Custom events
@@ -46,9 +47,9 @@ export class EventsGateway {
   }
 
   @SubscribeMessage('quick_match')
-  async quickMatch(@MessageBody() data: any, @ConnectedSocket() socket: Socket): Promise<string> {
-    const uuid = v4();
-    this.eventsService.addToQueue({ socket_id: socket.id, session_id: uuid })
+  async quickMatch(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): Promise<string> {
+    const new_session_id: string = this.eventsService.handleUserSession(socket, session_id)
+    this.eventsService.handleUserQueue(socket.id, new_session_id)
     return 'received'
   }
 }
