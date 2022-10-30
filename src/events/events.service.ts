@@ -101,6 +101,37 @@ export class EventsService {
         })
         this.waiting_queue.splice(indexToDelete, 1);
     }
+
+    // Handle user's session id
+
+    handleUserSession(socket: Socket, session_id: string): string {
+        const found_session: Session | undefined = this.findSessionWithSessionId(session_id)
+        const found_socket: Session | undefined = this.findSessionWithSocketId(socket.id)
+        const uuid: string = v4();
+
+        if (found_session) {
+            console.log('\nUser\'s session ID is in our sessions list\n', found_session)
+            this.updateSocketIdOfSession(socket.id, session_id);
+            this.clearSessionTimeout(session_id)
+            this.findSessionWithSessionId(session_id).timeout = null
+            return session_id
+        }
+
+        else if (found_socket) {
+            console.log(`\nUser\'s socket ID is in our sessions list\n`, found_socket)
+            this.updateSessionIdOfSession(socket.id, uuid);
+            socket.emit('update_session_id', uuid)
+            return uuid
+        }
+
+        else {
+            console.log('\nUser\'s session ID is not in our session list\n')
+            socket.emit('update_session_id', uuid)
+            this.addToSessions({ socket_id: socket.id, session_id: uuid, timeout: null })
+            return uuid
+        }
+    }
+
     handleUserQueue(socket_id: string, session_id: string) {
         if (this.findPlayerInQueueWithSocketId(socket_id)) {
             this.updateSessionIdOfPlayerInQueue(socket_id, session_id); return
