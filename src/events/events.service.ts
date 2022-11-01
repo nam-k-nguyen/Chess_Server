@@ -18,7 +18,15 @@ export class EventsService {
         let new_length = this.waiting_queue.push(player)
         return new_length > 0 ? 'added to queue' : 'not added to queue'
     }
-    addToMatches() { }
+    addToMatches(player1: Player, player2: Player): any { 
+        console.log('player 1', player1)
+        console.log('player 2', player2)
+        const new_match: Match = {
+            p1: player1,
+            p2: player2
+        }
+        this.matches.push(new_match)
+    }
     addToSessions(session: Session): void { this.sessions.push(session) }
 
     // Getter
@@ -140,5 +148,11 @@ export class EventsService {
             this.updateSocketIdOfPlayerInQueue(socket_id, session_id); return 
         }
         this.addToQueue({ socket_id: socket_id, session_id: session_id })
+
+        if (this.waiting_queue.length === 2) {
+            const p1 = this.waiting_queue.shift()
+            const p2 = this.waiting_queue.shift()
+            this.addToMatches(p1, p2)
+        }
     }
 }
