@@ -8,8 +8,6 @@ import {
 import { Socket } from 'socket.io';
 import { EventsService } from './events.service';
 import { Server } from 'socket.io';
-import { v4 } from 'uuid';
-import { Session } from './interfaces/session.interface';
 
 @WebSocketGateway({
   cors: {
@@ -47,9 +45,17 @@ export class EventsGateway {
   }
 
   @SubscribeMessage('enter_queue')
-  async quickMatch(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): Promise<string> {
+  async enterQueue(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): Promise<string> {
     const new_session_id: string = this.eventsService.handleUserSession(socket, session_id)
     this.eventsService.handleUserQueue(socket.id, new_session_id)
-    return 'received'
+    return 'entered queue'
+  }
+
+  @SubscribeMessage('exit_queue')
+  async exitQueue(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): Promise<string> {
+    this.eventsService.deletePlayerInQueue(socket.id, session_id)
+    return 'exited queue'
+  }
+
   }
 }
