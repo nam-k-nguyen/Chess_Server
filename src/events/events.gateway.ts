@@ -46,7 +46,7 @@ export class EventsGateway {
     return row + col;
   }
 
-  @SubscribeMessage('quick_match')
+  @SubscribeMessage('enter_queue')
   async quickMatch(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): Promise<string> {
     const new_session_id: string = this.eventsService.handleUserSession(socket, session_id)
     this.eventsService.handleUserQueue(socket.id, new_session_id)
