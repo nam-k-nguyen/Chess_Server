@@ -12,13 +12,11 @@ export class EventsService {
     sessions: Session[] = [];
     matches: Match[] = [];
 
-    // Setter
+    
 
-    addToQueue(player: Player): string {
-        let new_length = this.waiting_queue.push(player)
-        return new_length > 0 ? 'added to queue' : 'not added to queue'
-    }
-    addToMatches(player1: Player, player2: Player): any { 
+    // ADD
+    addToQueue(player: Player): void { this.waiting_queue.push(player) }
+    addToMatches(player1: Player, player2: Player): Match {
         console.log('player 1', player1)
         console.log('player 2', player2)
         const new_match: Match = {
@@ -26,6 +24,7 @@ export class EventsService {
             p2: player2
         }
         this.matches.push(new_match)
+        return new_match
     }
     addToSessions(session: Session): void { this.sessions.push(session) }
 
