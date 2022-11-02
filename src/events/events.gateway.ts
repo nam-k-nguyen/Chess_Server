@@ -8,6 +8,7 @@ import {
 import { Socket } from 'socket.io';
 import { EventsService } from './events.service';
 import { Server } from 'socket.io';
+import { BoardService } from './board.service';
 
 @WebSocketGateway({
   cors: {
@@ -18,7 +19,10 @@ export class EventsGateway {
   @WebSocketServer()
   server: Server;
 
-  constructor(private readonly eventsService: EventsService) { }
+  constructor(
+    private readonly eventsService: EventsService,
+    private readonly boardService: BoardService
+  ) { }
 
   // Lifecycle hooks interface
 
@@ -47,7 +51,15 @@ export class EventsGateway {
   @SubscribeMessage('enter_queue')
   async enterQueue(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): Promise<string> {
     const new_session_id: string = this.eventsService.handleUserSession(socket, session_id)
-    this.eventsService.handleUserQueue(socket.id, new_session_id)
+    const new_match = this.eventsService.handleUserQueue(socket, new_session_id)
+    if (new_match) {
+      const ID1 = new_match.p1.socket_id
+      const ID2 = new_match.p2.socket_id
+      const p1Socket = this.getSocketByID(ID1)
+      const p2Socket = this.getSocketByID(ID2)
+      p1Socket.emit('enter_match', this.boardService.getEmptyBoard())
+      p2Socket.emit('enter_match', this.boardService.getEmptyBoard())
+    }
     return 'entered queue'
   }
 
