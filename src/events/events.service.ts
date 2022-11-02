@@ -28,8 +28,9 @@ export class EventsService {
     }
     addToSessions(session: Session): void { this.sessions.push(session) }
 
-    // Getter
 
+
+    // GET
     getQueue(): Array<Player> { return this.waiting_queue }
     getMatches(): Array<Match> { return this.matches }
     getSessions(): Array<Session> { return this.sessions }
@@ -43,9 +44,9 @@ export class EventsService {
         }))
     }
 
-    // Find
 
 
+    // FIND
     findSession(socket_id: string, session_id: string): Session | undefined {
         return this.sessions.find(session => session.socket_id === socket_id || session.session_id === session_id)
     }
@@ -54,8 +55,8 @@ export class EventsService {
     }
 
 
-    // Update
 
+    // UPDATE
     updateSession(socket_id: string, session_id: string, target: 'socket' | 'session') {
         if (target = 'socket') this.findSession(null, session_id).socket_id = socket_id;
         if (target = 'session') this.findSession(socket_id, null).session_id = session_id;
@@ -65,7 +66,9 @@ export class EventsService {
         if (target = 'session') this.findQueuer(socket_id, null).session_id = session_id;
     }
 
-    // When a socket is disconnected: Set time out to delete a session after 10 minutes 
+
+
+    // TIMEOUT 
     setSessionTimeout(socket_id: string): any {
         console.log(socket_id)
         const foundSession = this.findSession(socket_id, null)
@@ -80,24 +83,21 @@ export class EventsService {
         if (foundSession) clearTimeout(foundSession.timeout)
     }
 
-    // Delete
 
+
+    // DELETE
     deleteSession(socket_id: string, session_id: string) {
-        const indexToDelete = this.sessions.findIndex(session => {
-            return session.socket_id === socket_id || session.session_id === session_id
-        })
+        const indexToDelete = this.sessions.findIndex(session => session.socket_id === socket_id || session.session_id === session_id)
         this.sessions.splice(indexToDelete, 1);
     }
-
     deletePlayerInQueue(socket_id: string, session_id: string) {
-        const indexToDelete = this.waiting_queue.findIndex(player => {
-            return player.socket_id === socket_id || player.session_id === session_id
-        })
+        const indexToDelete = this.waiting_queue.findIndex(player => player.socket_id === socket_id || player.session_id === session_id)
         this.waiting_queue.splice(indexToDelete, 1);
     }
+    
+    
 
-    // Handle user's session id
-
+    // HANDLER
     handleUserSession(socket: Socket, session_id: string): string {
         const found_session: Session | undefined = this.findSession(null, session_id)
         const found_socket: Session | undefined = this.findSession(socket.id, null)
