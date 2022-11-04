@@ -5,4 +5,5 @@ export interface Match {
     p1: Player
     p2: Player
     board?: Cell[]
+    moves?: string[]
 }
