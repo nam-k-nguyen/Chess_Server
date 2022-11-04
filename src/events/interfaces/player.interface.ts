@@ -4,5 +4,7 @@ import { Timer } from "./timer.interface";
 export interface Player {
     socket_id: string
     session_id: string
-    timer?: Timer
+    color?: 'black' | 'white'
+    seconds_left?: number
+    interval?: ReturnType<typeof setInterval> | null
 }
