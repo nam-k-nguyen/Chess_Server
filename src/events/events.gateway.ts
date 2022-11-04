@@ -53,17 +53,18 @@ export class EventsGateway {
   @SubscribeMessage('enter_queue')
   async enterQueue(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): Promise<string> {
     const new_session_id: string = this.eventsService.handleUserSession(socket, session_id)
-    const new_match = this.eventsService.handleUserQueue(socket, new_session_id)
+    const new_match = this.eventsService.handleUserQueue(socket.id, new_session_id)
     if (new_match) {
       const ID1 = new_match.p1.socket_id
       const ID2 = new_match.p2.socket_id
       const p1Socket = this.getSocketByID(ID1)
       const p2Socket = this.getSocketByID(ID2)
-      p1Socket.emit('enter_match', this.boardService.getEmptyBoard())
-      p2Socket.emit('enter_match', this.boardService.getEmptyBoard())
+      p1Socket.emit('enter_match', this.boardService.getStartingBoard())
+      p2Socket.emit('enter_match', this.boardService.getStartingBoard())
     }
     return 'entered queue'
   }
+
   @SubscribeMessage('exit_queue')
   async exitQueue(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): Promise<string> {
     this.eventsService.deletePlayerInQueue(socket.id, session_id)

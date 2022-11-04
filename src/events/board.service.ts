@@ -50,9 +50,10 @@ export class BoardService {
         let cell: Cell = this.getEmptyCell()
         let board = new Array(64)
         for (let i = 0; i < 64; i++) { board[i] = { ...cell } }
-        return this.getStartingBoard(board)
+        return board
     }
-    getStartingBoard(board: Cell[]) {
+    getStartingBoard() {
+        let board = this.getEmptyBoard()
         const DARK_CELL = '#B58763'
         const LIGHT_CELL = '#F0DAB5'
         const DARK_PIECE = '#1e1e1f'
