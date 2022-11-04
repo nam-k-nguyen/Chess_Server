@@ -5,6 +5,8 @@ import { v4 } from 'uuid';
 import { Session } from './interfaces/session.interface';
 import { Match } from './interfaces/match.interface';
 import { Player } from './interfaces/player.interface';
+import { BoardService } from './board.service';
+import { PlayerService } from 'src/player/player.service';
 
 @Injectable()
 export class EventsService {
@@ -12,16 +14,23 @@ export class EventsService {
     sessions: Session[] = [];
     matches: Match[] = [];
 
+    constructor(
+        private readonly boardService: BoardService,
+        private readonly playerService: PlayerService
+    ) { }
 
 
     // ADD
     addToQueue(player: Player): void { this.waiting_queue.push(player) }
     addToMatches(player1: Player, player2: Player): Match {
+        [player1, player2] = this.playerService.assignRandomColor(player1, player2)
         console.log('player 1', player1)
         console.log('player 2', player2)
         const new_match: Match = {
             p1: player1,
-            p2: player2
+            p2: player2,
+            board: this.boardService.getStartingBoard(),
+            moves: []
         }
         this.matches.push(new_match)
         return new_match
@@ -94,8 +103,8 @@ export class EventsService {
         const indexToDelete = this.waiting_queue.findIndex(player => player.socket_id === socket_id || player.session_id === session_id)
         this.waiting_queue.splice(indexToDelete, 1);
     }
-    
-    
+
+
 
     // HANDLER
     handleUserSession(socket: Socket, session_id: string): string {
