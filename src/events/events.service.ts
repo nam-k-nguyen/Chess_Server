@@ -67,12 +67,12 @@ export class EventsService {
 
     // UPDATE
     updateSession(socket_id: string, session_id: string, target: 'socket' | 'session') {
-        if (target = 'socket') this.findSession(null, session_id).socket_id = socket_id;
-        if (target = 'session') this.findSession(socket_id, null).session_id = session_id;
+        if (target === 'socket') this.findSession(null, session_id).socket_id = socket_id;
+        if (target === 'session') this.findSession(socket_id, null).session_id = session_id;
     }
     updateQueuer(socket_id: string, session_id: string, target: 'socket' | 'session') {
-        if (target = 'socket') this.findQueuer(null, session_id).socket_id = socket_id;
-        if (target = 'session') this.findQueuer(socket_id, null).session_id = session_id;
+        if (target === 'socket') this.findQueuer(null, session_id).socket_id = socket_id;
+        if (target === 'session') this.findQueuer(socket_id, null).session_id = session_id;
     }
 
 
