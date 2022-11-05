@@ -44,7 +44,11 @@ export class EventsGateway {
   @SubscribeMessage('client_connect')
   clientConnect(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): any {
     console.log(`\nA new user has connected\n- session ID : ${session_id}\n-  socket ID : ${socket.id}`)
-    this.eventsService.handleUserSession(socket, session_id);
+    const new_session_id = this.eventsService.handleUserSession(socket, session_id);
+    const found_match = this.eventsService.findMatch(socket.id, new_session_id)
+    if (found_match) {
+      socket.emit('update_board', found_match.match.board)
+    }
   }
 
 
