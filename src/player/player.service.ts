@@ -22,4 +22,10 @@ export class PlayerService {
         p2.timer = timer2
         return [p1, p2]
     }
+
+    preparePlayer(p1: Player, p2: Player): Player[] {
+        let colored = this.assignRandomColor(p1, p2)
+        let timered = this.assignTimer(colored[0], colored[1])
+        return timered
+    }
 }
