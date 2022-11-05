@@ -86,6 +86,16 @@ export class EventsService {
         if (target === 'socket') this.findQueuer(null, session_id).socket_id = socket_id;
         if (target === 'session') this.findQueuer(socket_id, null).session_id = session_id;
     }
+    updateMatchPlayer(socket_id: string, session_id: string, target: 'socket' | 'session') {
+        let result = this.findMatch(socket_id, session_id)
+        if (!result) return
+        
+        let found_match = result.match
+        let found_player = result.player
+
+        if (target === 'socket') found_match[found_player].socket_id = socket_id;
+        if (target === 'session') found_match[found_player].session_id = session_id;
+    }
 
 
 
