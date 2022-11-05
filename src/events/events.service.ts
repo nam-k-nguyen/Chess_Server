@@ -23,7 +23,7 @@ export class EventsService {
     // ADD
     addToQueue(player: Player): void { this.waiting_queue.push(player) }
     addToMatches(player1: Player, player2: Player): Match {
-        [player1, player2] = this.playerService.assignRandomColor(player1, player2)
+        [player1, player2] = this.playerService.preparePlayer(player1, player2)
         console.log('player 1', player1)
         console.log('player 2', player2)
         const new_match: Match = {
@@ -61,6 +61,18 @@ export class EventsService {
     }
     findQueuer(socket_id: string, session_id: string): Player | undefined {
         return this.waiting_queue.find(player => player.socket_id === socket_id || player.session_id === session_id)
+    }
+    // Find a match with one player in the match having the provided socket id or session id
+    // Return on object containing the found match and the name of the player that was found  
+    findMatch(socket_id: string, session_id: string): {match: Match, player: string} | undefined {
+        let p1_match: boolean
+        let p2_match: boolean
+        let found_match = this.matches.find(match => {
+            p1_match = match.p1.socket_id === socket_id || match.p1.session_id === session_id
+            p2_match = match.p2.socket_id === socket_id || match.p2.session_id === session_id
+            return p1_match || p2_match
+        })
+        return found_match ? {match: found_match, player: p1_match === true ? 'p1' : 'p2'} : undefined
     }
 
 
