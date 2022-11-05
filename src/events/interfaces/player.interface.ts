@@ -1,10 +1,8 @@
-import { Socket } from "socket.io";
-import { Timer } from "./timer.interface";
+import {stopwatch} from 'durations'
 
 export interface Player {
     socket_id: string
     session_id: string
     color?: 'black' | 'white'
-    seconds_left?: number
-    interval?: ReturnType<typeof setInterval> | null
+    timer?: ReturnType<typeof stopwatch> | null
 }
