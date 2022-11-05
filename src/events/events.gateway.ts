@@ -75,5 +75,16 @@ export class EventsGateway {
     return 'exited queue'
   }
 
+  @SubscribeMessage('update_board')
+  async updateBoard(@MessageBody() data: any, @ConnectedSocket() socket: Socket): Promise<any> {
+    let {board, session_id} = data
+    let result = this.eventsService.findMatch(socket.id, session_id) 
+    if (result) {
+      result.match.board = board
+      let other_player = result.player === 'p1' ? 'p2' : 'p1'
+      let other_player_socket_id = result.match[other_player].socket_id
+      this.getSocketByID(other_player_socket_id).emit('update_board', board)
+    }
+  }
   }
 }
