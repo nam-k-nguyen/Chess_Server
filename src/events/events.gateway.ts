@@ -86,5 +86,12 @@ export class EventsGateway {
       this.getSocketByID(other_player_socket_id).emit('update_board', board)
     }
   }
+
+  @SubscribeMessage('get_possible_moves')
+  async getPossibleMoves(@MessageBody() data: any): Promise<any> {
+    const {board, index} = data
+    return this.boardService.getPossibleMoves(board, index)
+  }
+
   }
 }
