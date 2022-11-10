@@ -4,10 +4,16 @@ import { Cell } from './interfaces/cell.interface';
 
 @Injectable()
 export class BoardService {
+    // NOTES: constraints 
+    // 1 <= row <= 8
+    // 1 <= col <= 8
+    // 0 <= index <= 63
+    // '1a' <= coord <= '8h'
+
 
     // CONVERTER
-    rowFromCellIndex(num: number): number { return Math.ceil(num / 8) }
-    colFromCellIndex(num: number): number { return (num - 1) % 8 + 1 }
+    rowFromCellIndex(index: number): number { return Math.ceil((index + 1) / 8) }
+    colFromCellIndex(index: number): number { return (index % 8) + 1 }
     rowColToCoord(row: number, col: number): string {
         let row_coord = 9 - row
         let col_coord = String.fromCharCode(96 + col)
@@ -62,7 +68,7 @@ export class BoardService {
         let light = true
 
         board.forEach((cell, i) => {
-            let index = i + 1
+            let index = i
             let row = this.rowFromCellIndex(index)
             let col = this.colFromCellIndex(index)
             // cell identifier
