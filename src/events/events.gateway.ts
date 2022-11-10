@@ -75,6 +75,33 @@ export class EventsGateway {
     return 'exited queue'
   }
 
+  // MATCH
+  @SubscribeMessage('verify_move')
+  verifyMove(
+    @MessageBody() data: { move: { src: number, dest: number }, session_id: string },
+    @ConnectedSocket() socket: Socket
+  ): string {
+    const { move, session_id } = data
+    const { src, dest } = move
+    const result = this.eventsService.findMatch(socket.id, session_id)
+
+    if (!result) { return 'match not found' }
+    const match = result.match
+    const board = match.board
+    const { row, col } = board[dest]
+    const possible_moves = this.boardService.getPossibleMoves(board, src)
+    const valid_move = possible_moves.find(cell => cell.row === row && cell.col === col)
+
+    if (!valid_move) {return 'invalid move'}
+    board[dest].piece = board[src].piece
+    board[dest].pieceColor = board[src].pieceColor
+    board[src].piece = 'none'
+    board[src].pieceColor = 'none'
+    this.getSocketByID(match.p1.socket_id).emit('update_board', board)
+    this.getSocketByID(match.p2.socket_id).emit('update_board', board)
+
+    return 'valid move'
+  }
   @SubscribeMessage('update_board')
   async updateBoard(@MessageBody() data: any, @ConnectedSocket() socket: Socket): Promise<any> {
     let {board, session_id} = data
