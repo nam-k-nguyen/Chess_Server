@@ -19,6 +19,7 @@ export class BoardService {
         let col_coord = String.fromCharCode(96 + col)
         return row_coord.toString() + col_coord.toString();
     }
+    rowColToIndex(row: number, col: number) { return (row - 1) * 8 + (col - 1) }
 
 
     // CELL INIT
@@ -100,17 +101,64 @@ export class BoardService {
 
         let moves = []
         if (piece === 'rook') {
-            for (let r = 1; r < row; r++) { moves.push({ row: r, col: col }); }
-            for (let r = row + 1; r <= 8; r++) { moves.push({ row: r, col: col }); }
-            for (let c = 1; c < col; c++) { moves.push({ row: row, col: c }); }
-            for (let c = col + 1; c <= 8; c++) { moves.push({ row: row, col: c }); }
+            for (let r = row - 1; r >= 1; r--) { // up
+                let above = board[this.rowColToIndex(r, col)]
+                // non-empty cell below
+                if (above.piece !== 'none') {
+                    // can only capture piece with opposite color
+                    if (above.pieceColor !== color) { moves.push({ row: r, col: col }) }
+                    break;
+                }
+                moves.push({ row: r, col: col });
+            }
+            for (let r = row + 1; r <= 8; r++) { // down
+                let below = board[this.rowColToIndex(r, col)]
+                // non-empty cell below
+                if (below.piece !== 'none') {
+                    // can only capture piece with opposite color
+                    if (below.pieceColor !== color) { moves.push({ row: r, col: col }) }
+                    break;
+                }
+                moves.push({ row: r, col: col });
+            }
+            for (let c = col - 1; c >= 1; c--) { // left
+                let left = board[this.rowColToIndex(row, c)]
+                // non-empty cell below
+                if (left.piece !== 'none') {
+                    // can only capture piece with opposite color
+                    if (left.pieceColor !== color) { moves.push({ row: row, col: c }) }
+                    break;
+                }
+                moves.push({ row: row, col: c });
+            }
+            for (let c = col + 1; c <= 8; c++) { // right 
+                let right = board[this.rowColToIndex(row, c)]
+                // non-empty cell below
+                if (right.piece !== 'none') {
+                    // can only capture piece with opposite color
+                    if (right.pieceColor !== color) { moves.push({ row: row, col: c }) }
+                    break;
+                }
+                moves.push({ row: row, col: c });
+            }
         }
         if (piece === 'bishop') {
-            for (let i = 1; i <= 7; i++) {
-                moves.push({ row: row - i, col: col - i })
-                moves.push({ row: row - i, col: col + i })
-                moves.push({ row: row + i, col: col - i })
-                moves.push({ row: row + i, col: col + i })
+            for (let r = -1; r <= 1; r = r + 2) { // row offset 
+                for (let c = -1; c <= 1; c = c + 2) { // col offset
+                    for (let m = 1; m <= 7; m++) { // offset magnitude
+                        let t_row = row + r * m // target row
+                        let t_col = col + c * m // target col
+                        if (t_row > 8 || t_row < 1 || t_col > 8 || t_col < 1) break; 
+                        let target_cell = board[this.rowColToIndex(t_row, t_col)]
+                        if (target_cell.piece !== 'none') {
+                            if (target_cell.pieceColor !== color) {
+                                moves.push({ row: t_row, col: t_col })
+                            }
+                            break;
+                        }
+                        moves.push({ row: t_row, col: t_col })
+                    }
+                }
             }
         }
         if (piece === 'knight') {
