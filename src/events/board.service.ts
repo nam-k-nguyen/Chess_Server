@@ -32,10 +32,10 @@ export class BoardService {
                                 col === 4 ? 'queen' : 'king' : 'none'
         )
     }
-    getStartingPieceColor(row: number, col: number, dark: string, light: string) {
+    getStartingPieceColor(row: number, col: number) {
         return (
-            row === 1 || row === 2 ? dark :
-                row === 7 || row === 8 ? light : 'none'
+            row === 1 || row === 2 ? 'black' :
+                row === 7 || row === 8 ? 'white' : 'none'
         )
     }
 
@@ -60,10 +60,6 @@ export class BoardService {
     }
     getStartingBoard() {
         let board = this.getEmptyBoard()
-        const DARK_CELL = '#B58763'
-        const LIGHT_CELL = '#F0DAB5'
-        const DARK_PIECE = '#1e1e1f'
-        const LIGHT_PIECE = '#ffffff'
 
         let light = true
 
@@ -78,8 +74,8 @@ export class BoardService {
             cell.coordinate = this.rowColToCoord(row, col)
             // cell content
             cell.piece = this.getStartingPiece(row, col)
-            cell.pieceColor = this.getStartingPieceColor(row, col, DARK_PIECE, LIGHT_PIECE)
-            cell.cellColor = light ? LIGHT_CELL : DARK_CELL
+            cell.pieceColor = this.getStartingPieceColor(row, col)
+            cell.cellColor = light ? 'white' : 'black'
 
             light = this.colFromCellIndex(index) === 8 ? light : !light
         })
