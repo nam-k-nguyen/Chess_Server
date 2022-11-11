@@ -162,14 +162,20 @@ export class BoardService {
             }
         }
         if (piece === 'knight') {
-            moves.push({ row: row + 1, col: col + 2 })
-            moves.push({ row: row + 1, col: col - 2 })
-            moves.push({ row: row - 1, col: col + 2 })
-            moves.push({ row: row - 1, col: col - 2 })
-            moves.push({ row: row + 2, col: col + 1 })
-            moves.push({ row: row + 2, col: col - 1 })
-            moves.push({ row: row - 2, col: col + 1 })
-            moves.push({ row: row - 2, col: col - 1 })
+            for (let one = -1; one <= 1; one = one + 2) {
+                for (let two = -2; two <= 2; two = two + 4) {
+                    let x = { row: row + one, col: col + two } // horizontal move 
+                    let y = { row: row + two, col: col + one } // vertical move
+                    if (!this.outOfBound(x.row, x.col)) {
+                        let target_cell_x = board[this.rowColToIndex(x.row, x.col)]
+                        if (target_cell_x.pieceColor !== color) {moves.push(x)}
+                    }
+                    if (!this.outOfBound(y.row, y.col)) {
+                        let target_cell_y = board[this.rowColToIndex(y.row, y.col)]
+                        if (target_cell_y.pieceColor !== color) {moves.push(y)}
+                    }
+                }
+            }
         }
         if (piece === 'pawn') {
             let direction = color === 'white' ? (-1) : (1)
