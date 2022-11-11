@@ -81,4 +81,80 @@ export class BoardService {
         })
         return board
     }
+
+
+    // VERIFY MOVES
+    getPossibleMoves(board: Cell[], index: number): { row: number, col: number }[] {
+        let cell = board[index]
+        let piece = cell.piece
+        let color = cell.pieceColor
+        let row = cell.row
+        let col = cell.col
+
+        // TODO
+        // pieces can't move to allied cells
+        // Enable castling
+        // Enable en passant
+        // Pawns move one direction
+        // Pawn promotion
+
+        let moves = []
+        if (piece === 'rook') {
+            for (let r = 1; r < row; r++) { moves.push({ row: r, col: col }); }
+            for (let r = row + 1; r <= 8; r++) { moves.push({ row: r, col: col }); }
+            for (let c = 1; c < col; c++) { moves.push({ row: row, col: c }); }
+            for (let c = col + 1; c <= 8; c++) { moves.push({ row: row, col: c }); }
+        }
+        if (piece === 'bishop') {
+            for (let i = 1; i <= 7; i++) {
+                moves.push({ row: row - i, col: col - i })
+                moves.push({ row: row - i, col: col + i })
+                moves.push({ row: row + i, col: col - i })
+                moves.push({ row: row + i, col: col + i })
+            }
+        }
+        if (piece === 'knight') {
+            moves.push({ row: row + 1, col: col + 2 })
+            moves.push({ row: row + 1, col: col - 2 })
+            moves.push({ row: row - 1, col: col + 2 })
+            moves.push({ row: row - 1, col: col - 2 })
+            moves.push({ row: row + 2, col: col + 1 })
+            moves.push({ row: row + 2, col: col - 1 })
+            moves.push({ row: row - 2, col: col + 1 })
+            moves.push({ row: row - 2, col: col - 1 })
+        }
+        if (piece === 'pawn') {
+            let direction = color === 'white' ? (-1) : (1)
+            moves.push({ row: row + direction * 1, col: col })
+            moves.push({ row: row + direction * 2, col: col })
+        }
+        if (piece === 'king') {
+            moves.push({ row: row - 1, col: col })
+            moves.push({ row: row + 1, col: col })
+            moves.push({ row: row - 1, col: col - 1 })
+            moves.push({ row: row + 1, col: col - 1 })
+            moves.push({ row: row - 1, col: col + 1 })
+            moves.push({ row: row + 1, col: col + 1 })
+            moves.push({ row: row, col: col - 1 })
+            moves.push({ row: row, col: col + 1 })
+        }
+        if (piece === 'queen') {
+            for (let r = 1; r < row; r++) { moves.push({ row: r, col: col }); }
+            for (let r = row + 1; r <= 8; r++) { moves.push({ row: r, col: col }); }
+            for (let c = 1; c < col; c++) { moves.push({ row: row, col: c }); }
+            for (let c = col + 1; c <= 8; c++) { moves.push({ row: row, col: c }); }
+            for (let i = 1; i <= 7; i++) {
+                moves.push({ row: row - i, col: col - i })
+                moves.push({ row: row - i, col: col + i })
+                moves.push({ row: row + i, col: col - i })
+                moves.push({ row: row + i, col: col + i })
+            }
+        }
+        return moves.filter(move => {
+            return (
+                move.row <= 8 && move.row >= 0 &&
+                move.col <= 8 && move.col >= 0
+            )
+        });
+    }
 }
