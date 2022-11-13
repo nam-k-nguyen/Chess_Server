@@ -86,11 +86,8 @@ export class BoardService {
 
     // VERIFY MOVES
     getPossibleMoves(board: Cell[], index: number): { row: number, col: number }[] {
-        let cell = board[index]
-        let piece = cell.piece
-        let color = cell.pieceColor
-        let row = cell.row
-        let col = cell.col
+        const cell = board[index]
+        const piece = cell.piece
 
         // TODO
         // pieces can't move to allied cells
@@ -99,116 +96,211 @@ export class BoardService {
         // Pawns move one direction
         // Pawn promotion
 
-        let moves = []
-        if (piece === 'rook') {
-            for (let r = row - 1; r >= 1; r--) { // up
-                let above = board[this.rowColToIndex(r, col)]
-                // non-empty cell below
-                if (above.piece !== 'none') {
-                    // can only capture piece with opposite color
-                    if (above.pieceColor !== color) { moves.push({ row: r, col: col }) }
-                    break;
-                }
-                moves.push({ row: r, col: col });
-            }
-            for (let r = row + 1; r <= 8; r++) { // down
-                let below = board[this.rowColToIndex(r, col)]
-                // non-empty cell below
-                if (below.piece !== 'none') {
-                    // can only capture piece with opposite color
-                    if (below.pieceColor !== color) { moves.push({ row: r, col: col }) }
-                    break;
-                }
-                moves.push({ row: r, col: col });
-            }
-            for (let c = col - 1; c >= 1; c--) { // left
-                let left = board[this.rowColToIndex(row, c)]
-                // non-empty cell below
-                if (left.piece !== 'none') {
-                    // can only capture piece with opposite color
-                    if (left.pieceColor !== color) { moves.push({ row: row, col: c }) }
-                    break;
-                }
-                moves.push({ row: row, col: c });
-            }
-            for (let c = col + 1; c <= 8; c++) { // right 
-                let right = board[this.rowColToIndex(row, c)]
-                // non-empty cell below
-                if (right.piece !== 'none') {
-                    // can only capture piece with opposite color
-                    if (right.pieceColor !== color) { moves.push({ row: row, col: c }) }
-                    break;
-                }
-                moves.push({ row: row, col: c });
-            }
+        switch (piece) {
+            case 'rook':
+                return this.getRookMoves(board, index);
+            case 'bishop':
+                return this.getBishopMoves(board, index);
+            case 'knight':
+                return this.getKnightMoves(board, index);
+            case 'pawn':
+                return this.getPawnMoves(board, index);
+            case 'king':
+                return this.getKingMoves(board, index);
+            case 'queen':
+                return this.getQueenMoves(board, index);
         }
-        if (piece === 'bishop') {
-            for (let r = -1; r <= 1; r = r + 2) { // row offset 
-                for (let c = -1; c <= 1; c = c + 2) { // col offset
-                    for (let m = 1; m <= 7; m++) { // offset magnitude
-                        let t_row = row + r * m // target row
-                        let t_col = col + c * m // target col
-                        if (t_row > 8 || t_row < 1 || t_col > 8 || t_col < 1) break; 
-                        let target_cell = board[this.rowColToIndex(t_row, t_col)]
-                        if (target_cell.piece !== 'none') {
-                            if (target_cell.pieceColor !== color) {
-                                moves.push({ row: t_row, col: t_col })
-                            }
-                            break;
+    }
+
+    getRookMoves(board: Cell[], index: number): { row: number, col: number }[] {
+        const cell = board[index]
+        const color = cell.pieceColor
+        const row = cell.row
+        const col = cell.col
+        const moves = []
+
+        for (let r = row - 1; r >= 1; r--) { // up
+            let above = board[this.rowColToIndex(r, col)]
+            // non-empty cell below
+            if (above.piece !== 'none') {
+                // can only capture piece with opposite color
+                if (above.pieceColor !== color) { moves.push({ row: r, col: col }) }
+                break;
+            }
+            moves.push({ row: r, col: col });
+        }
+        for (let r = row + 1; r <= 8; r++) { // down
+            let below = board[this.rowColToIndex(r, col)]
+            // non-empty cell below
+            if (below.piece !== 'none') {
+                // can only capture piece with opposite color
+                if (below.pieceColor !== color) { moves.push({ row: r, col: col }) }
+                break;
+            }
+            moves.push({ row: r, col: col });
+        }
+        for (let c = col - 1; c >= 1; c--) { // left
+            let left = board[this.rowColToIndex(row, c)]
+            // non-empty cell below
+            if (left.piece !== 'none') {
+                // can only capture piece with opposite color
+                if (left.pieceColor !== color) { moves.push({ row: row, col: c }) }
+                break;
+            }
+            moves.push({ row: row, col: c });
+        }
+        for (let c = col + 1; c <= 8; c++) { // right 
+            let right = board[this.rowColToIndex(row, c)]
+            // non-empty cell below
+            if (right.piece !== 'none') {
+                // can only capture piece with opposite color
+                if (right.pieceColor !== color) { moves.push({ row: row, col: c }) }
+                break;
+            }
+            moves.push({ row: row, col: c });
+        }
+
+        return moves
+    }
+    getBishopMoves(board: Cell[], index: number): { row: number, col: number }[] {
+        const cell = board[index]
+        const color = cell.pieceColor
+        const row = cell.row
+        const col = cell.col
+        const moves = []
+
+        for (let r = -1; r <= 1; r = r + 2) { // row offset 
+            for (let c = -1; c <= 1; c = c + 2) { // col offset
+                magnitude: for (let m = 1; m <= 7; m++) { // offset magnitude
+                    let t_row = row + r * m // target row
+                    let t_col = col + c * m // target col
+                    if (t_row > 8 || t_row < 1 || t_col > 8 || t_col < 1) { break magnitude; }
+                    let target_cell = board[this.rowColToIndex(t_row, t_col)]
+                    if (target_cell.piece !== 'none') {
+                        if (target_cell.pieceColor !== color) {
+                            moves.push({ row: t_row, col: t_col })
                         }
-                        moves.push({ row: t_row, col: t_col })
+                        break magnitude;
                     }
+                    moves.push({ row: t_row, col: t_col })
                 }
             }
         }
-        if (piece === 'knight') {
-            for (let one = -1; one <= 1; one = one + 2) {
-                for (let two = -2; two <= 2; two = two + 4) {
-                    let x = { row: row + one, col: col + two } // horizontal move 
-                    let y = { row: row + two, col: col + one } // vertical move
-                    if (!this.outOfBound(x.row, x.col)) {
-                        let target_cell_x = board[this.rowColToIndex(x.row, x.col)]
-                        if (target_cell_x.pieceColor !== color) {moves.push(x)}
-                    }
-                    if (!this.outOfBound(y.row, y.col)) {
-                        let target_cell_y = board[this.rowColToIndex(y.row, y.col)]
-                        if (target_cell_y.pieceColor !== color) {moves.push(y)}
-                    }
+
+        return moves
+    }
+    getKnightMoves(board: Cell[], index: number): { row: number, col: number }[] {
+        const cell = board[index]
+        const color = cell.pieceColor
+        const row = cell.row
+        const col = cell.col
+        const moves = []
+
+        for (let one = -1; one <= 1; one = one + 2) {
+            for (let two = -2; two <= 2; two = two + 4) {
+                let x = { row: row + one, col: col + two } // horizontal move 
+                let y = { row: row + two, col: col + one } // vertical move
+                if (!this.outOfBound(x.row, x.col)) {
+                    let target_cell_x = board[this.rowColToIndex(x.row, x.col)]
+                    if (target_cell_x.pieceColor !== color) { moves.push(x) }
+                }
+                if (!this.outOfBound(y.row, y.col)) {
+                    let target_cell_y = board[this.rowColToIndex(y.row, y.col)]
+                    if (target_cell_y.pieceColor !== color) { moves.push(y) }
                 }
             }
         }
-        if (piece === 'pawn') {
-            let direction = color === 'white' ? (-1) : (1)
-            moves.push({ row: row + direction * 1, col: col })
-            moves.push({ row: row + direction * 2, col: col })
-        }
-        if (piece === 'king') {
-            moves.push({ row: row - 1, col: col })
-            moves.push({ row: row + 1, col: col })
-            moves.push({ row: row - 1, col: col - 1 })
-            moves.push({ row: row + 1, col: col - 1 })
-            moves.push({ row: row - 1, col: col + 1 })
-            moves.push({ row: row + 1, col: col + 1 })
-            moves.push({ row: row, col: col - 1 })
-            moves.push({ row: row, col: col + 1 })
-        }
-        if (piece === 'queen') {
-            for (let r = 1; r < row; r++) { moves.push({ row: r, col: col }); }
-            for (let r = row + 1; r <= 8; r++) { moves.push({ row: r, col: col }); }
-            for (let c = 1; c < col; c++) { moves.push({ row: row, col: c }); }
-            for (let c = col + 1; c <= 8; c++) { moves.push({ row: row, col: c }); }
-            for (let i = 1; i <= 7; i++) {
-                moves.push({ row: row - i, col: col - i })
-                moves.push({ row: row - i, col: col + i })
-                moves.push({ row: row + i, col: col - i })
-                moves.push({ row: row + i, col: col + i })
+
+        return moves
+    }
+    getPawnMoves(board: Cell[], index: number): { row: number, col: number }[] {
+        const cell = board[index]
+        const color = cell.pieceColor
+        const row = cell.row
+        const col = cell.col
+        const moves = []
+
+        let direction = color === 'white' ? (-1) : (1)
+        for (let c = -1; c <= 1; c++) {
+            let move = { row: row + direction * 1, col: col + c }
+            let far_move = { row: row + direction * 2, col: col + c }
+            let isStartingRow = (color === 'white' && row === 7) || (color === 'black' && row === 2)
+
+            if (this.outOfBound(move.row, move.col)) { continue; }
+
+            let cell = board[this.rowColToIndex(move.row, move.col)]
+            if (c === 0) {
+                if (cell.pieceColor === 'none') { moves.push(move) }
+                if (isStartingRow) {
+                    let far_cell = board[this.rowColToIndex(far_move.row, far_move.col)]
+                    if (far_cell.pieceColor === 'none') { moves.push(far_move) }
+                }
+            } else if (cell.pieceColor !== color && cell.pieceColor !== 'none') {
+                moves.push(move)
             }
         }
-        return moves.filter(move => {
-            return (
-                move.row <= 8 && move.row >= 0 &&
-                move.col <= 8 && move.col >= 0
-            )
-        });
+
+        return moves
+    }
+    getKingMoves(board: Cell[], index: number): { row: number, col: number }[] {
+        const cell = board[index]
+        const color = cell.pieceColor
+        const row = cell.row
+        const col = cell.col
+        const castleable = cell.castleable
+        const moves = []
+
+        for (let i = -1; i <= 1; i = i + 2) {
+            // Diagonal moves (upper right, upper left, lower right, lower left)
+            inner: for (let j = -1; j <= 1; j = j + 2) {
+                let t_row = row + i, t_col = col + j
+                if (this.outOfBound(t_row, t_col)) { continue inner }
+                if (board[this.rowColToIndex(t_row, t_col)].pieceColor === color) { continue inner }
+                moves.push({ row: row + i, col: col + j })
+            }
+            // Horizontal moves (left, right)
+            let x_row = row, x_col = col + i
+            if (!this.outOfBound(x_row, x_col) && board[this.rowColToIndex(x_row, x_col)].pieceColor !== color) {
+                moves.push({ row: x_row, col: x_col })
+            }
+            // Vertical moves (up, down)
+            let y_row = row + i, y_col = col
+            if (!this.outOfBound(y_row, y_col) && board[this.rowColToIndex(y_row, y_col)].pieceColor !== color) {
+                moves.push({ row: y_row, col: y_col })
+            }
+        }
+
+        // Castling
+        if (castleable && (index == 4 || index == 60)) {
+            short_side_castle: for (let c = 1; c <= 3; c++) {
+                let target_move = { row: row, col: col + c }
+                let target_cell = board[this.rowColToIndex(target_move.row, target_move.col)]
+                // can only castle if there must be no in-between pieces
+                if (c < 3 && target_cell.piece !== 'none') { break short_side_castle }
+                // can only castle with a rook that has not move
+                if (c === 3 && target_cell.piece === 'rook' && target_cell.castleable) {
+                    moves.push({ row: row, col: col + 2 })
+                }
+            }
+            long_side_castle: for (let c = 1; c <= 4; c++) {
+                let target_move = { row: row, col: col - c }
+                let target_cell = board[this.rowColToIndex(target_move.row, target_move.col)]
+                // can only castle if there must be no in-between pieces
+                if (c < 4 && target_cell.piece !== 'none') { break long_side_castle }
+                // can only castle with a rook that has not move
+                if (c === 4 && target_cell.piece === 'rook' && target_cell.castleable) {
+                    moves.push({ row: row, col: col - 2 })
+                }
+            }
+        }
+
+
+        return moves
+    }
+    getQueenMoves(board: Cell[], index: number): { row: number, col: number }[] {
+        const moves = []
+        moves.push(this.getRookMoves(board, index))
+        moves.push(this.getBishopMoves(board, index))
+        return moves
     }
 }
