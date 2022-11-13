@@ -82,30 +82,37 @@ export class EventsGateway {
     @ConnectedSocket() socket: Socket
   ): string {
     const { move, session_id } = data
-    const { src, dest } = move
+    const { src, dest } = move // src and dest are indexes of the board array 
     const result = this.eventsService.findMatch(socket.id, session_id)
 
     if (!result) { return 'match not found' }
-    const match = result.match
-    const board = match.board
+    const {match, player} = result
+    const {board, moves} = match
     const { row, col } = board[dest]
     const possible_moves = this.boardService.getPossibleMoves(board, src)
+    const current_turn_color = moves.length % 2 === 0 ? 'white' : 'black'
+    
+    const valid_player = match[player].color === current_turn_color
+    if (!valid_player) {return 'invalid player'}
+    
+    const valid_color = board[src].pieceColor === current_turn_color
+    if (!valid_color) {return 'invalid color'}
+    
     const valid_move = possible_moves.find(cell => cell.row === row && cell.col === col)
-
     if (!valid_move) {return 'invalid move'}
-    board[dest].piece = board[src].piece
-    board[dest].pieceColor = board[src].pieceColor
-    board[src].piece = 'none'
-    board[src].pieceColor = 'none'
+
+    moves.push(this.boardService.getMoveNotation(board, src, dest))
+    this.boardService.updateBoard(board, src, dest)
     this.getSocketByID(match.p1.socket_id).emit('update_board', board)
     this.getSocketByID(match.p2.socket_id).emit('update_board', board)
 
     return 'valid move'
   }
+
   @SubscribeMessage('update_board')
   async updateBoard(@MessageBody() data: any, @ConnectedSocket() socket: Socket): Promise<any> {
-    let {board, session_id} = data
-    let result = this.eventsService.findMatch(socket.id, session_id) 
+    let { board, session_id } = data
+    let result = this.eventsService.findMatch(socket.id, session_id)
     if (result) {
       result.match.board = board
       let other_player = result.player === 'p1' ? 'p2' : 'p1'
