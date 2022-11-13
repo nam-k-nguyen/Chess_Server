@@ -20,6 +20,26 @@ export class BoardService {
         return row_coord.toString() + col_coord.toString();
     }
     rowColToIndex(row: number, col: number) { return (row - 1) * 8 + (col - 1) }
+    pieceToNotation(piece: string): string {
+        if (piece = 'knight') return 'N'
+        return piece[0]
+    }
+
+
+    // LOGIC
+    outOfBound(row: number, col: number) {
+        return row > 8 || row < 1 || col > 8 || col < 1
+    }
+    getMoveNotation(board: Cell[], src: number, dest: number) {
+        let src_cell: Cell = board[src]
+        let dest_cell: Cell = board[dest]
+        let src_coord = this.rowColToCoord(src_cell.row, src_cell.col)
+        let dest_coord = this.rowColToCoord(dest_cell.row, dest_cell.col)
+        let move_piece = this.pieceToNotation(src_cell.piece)
+        let move_notation = move_piece + src_coord + dest_coord
+        console.log(move_notation)
+        return move_notation
+    }
 
 
     // CELL INIT
@@ -77,9 +97,49 @@ export class BoardService {
             cell.piece = this.getStartingPiece(row, col)
             cell.pieceColor = this.getStartingPieceColor(row, col)
             cell.cellColor = light ? 'white' : 'black'
+            // castle
+            if (cell.piece === 'rook' || cell.piece === 'king') {
+                cell.castleable = true
+            }
 
             light = this.colFromCellIndex(index) === 8 ? light : !light
         })
+        return board
+    }
+
+
+
+    // BOARD UPDATE 
+    updateBoard(board: Cell[], src: any, dest: any) {
+        src = parseInt(src)
+        dest = parseInt(dest)
+        
+        const src_cell = board[src]
+        const src_piece = src_cell.piece
+        const src_color = src_cell.pieceColor
+
+        // If a piece moves, mark it as uncastleable
+        if (board[src].castleable) { board[src].castleable = false }
+        if (board[dest].castleable) { board[dest].castleable = false }
+
+        // Move a piece from source to destination
+        board[dest].piece = src_piece
+        board[dest].pieceColor = src_color
+        board[src].piece = 'none'
+        board[src].pieceColor = 'none'
+
+        // If it's a castle move, also move the rook
+        if (src_piece === 'king' && Math.abs(src - dest) === 2) {
+            // rook distance = 4 if long castle, rook distanace = 3 if short castle
+            let rook_distance = dest < src ? 4 : 3
+            // direction = -1 if long castle, direction = 1 if short castle
+            let direction = (dest - src) / 2
+
+            board[src + direction].piece = board[src + direction * rook_distance].piece
+            board[src + direction].pieceColor = board[src + direction * rook_distance].pieceColor
+            board[src + direction * rook_distance].piece = 'none'
+            board[src + direction * rook_distance].pieceColor = 'none'
+        }
         return board
     }
 
