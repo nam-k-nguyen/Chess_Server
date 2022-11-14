@@ -280,22 +280,32 @@ export class BoardService {
         const col = cell.col
         const moves = []
 
-        let direction = color === 'white' ? (-1) : (1)
+        const direction = color === 'black' ? 1 : -1
+        const rank = color === 'black' ? row : 9 - row
+
         for (let c = -1; c <= 1; c++) {
+            // Check if the potential move is within board
             let move = { row: row + direction * 1, col: col + c }
-            let far_move = { row: row + direction * 2, col: col + c }
-            let isStartingRow = (color === 'white' && row === 7) || (color === 'black' && row === 2)
-
             if (this.outOfBound(move.row, move.col)) { continue; }
+            let move_cell = board[this.rowColToIndex(move.row, move.col)]
 
-            let cell = board[this.rowColToIndex(move.row, move.col)]
+            // Forward moves 
             if (c === 0) {
-                if (cell.pieceColor === 'none') { moves.push(move) }
-                if (isStartingRow) {
-                    let far_cell = board[this.rowColToIndex(far_move.row, far_move.col)]
-                    if (far_cell.pieceColor === 'none') { moves.push(far_move) }
+                if (move_cell.pieceColor === 'none') {
+                    // 1 square forward
+                    moves.push(move)
+                    // 2 squares forward
+                    if (rank === 2) {
+                        let jump = { row: row + direction * 2, col: col + c }
+                        let jump_cell = board[this.rowColToIndex(jump.row, jump.col)]
+                        if (jump_cell.pieceColor === 'none') { moves.push(jump) }
+                    }
                 }
-            } else if (cell.pieceColor !== color && cell.pieceColor !== 'none') {
+            }
+            // Diagonal captures can be made if diagonall cells
+            if (c !== 0) {
+                if (move_cell.pieceColor === color) { continue } // can't capture allied piece
+                if (move_cell.pieceColor === 'none') { continue } // can't capture empty cell 
                 moves.push(move)
             }
         }
