@@ -9,6 +9,7 @@ import { Socket } from 'socket.io';
 import { EventsService } from './events.service';
 import { Server } from 'socket.io';
 import { BoardService } from './board.service';
+import { Piece } from './interfaces/piece.interface';
 
 @WebSocketGateway({
   cors: {
