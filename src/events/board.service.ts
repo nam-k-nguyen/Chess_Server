@@ -368,9 +368,8 @@ export class BoardService {
         return moves
     }
     getQueenMoves(board: Cell[], index: number): { row: number, col: number }[] {
-        const moves = []
-        moves.push(this.getRookMoves(board, index))
-        moves.push(this.getBishopMoves(board, index))
-        return moves
+        let rook_moves = this.getRookMoves(board, index)
+        let bishop_moves = (this.getBishopMoves(board, index))
+        return [...rook_moves, ...bishop_moves]
     }
 }
