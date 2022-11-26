@@ -6,5 +6,6 @@ export interface Cell {
     piece:  'pawn' | 'rook' | 'bishop' | 'knight' | 'queen' | 'king' | 'none' | null,
     pieceColor: string | null,
     cellColor: string | null,
+    enp?: true | false | null
     castleable?: true | false | null
 }
