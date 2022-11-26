@@ -110,13 +110,21 @@ export class BoardService {
 
 
     // BOARD UPDATE 
-    updateBoard(board: Cell[], src: any, dest: any) {
+    updateBoard(board: Cell[], src: any, dest: any, promotion: Piece) {
         src = parseInt(src)
         dest = parseInt(dest)
-        
+        // Cell reference
         const src_cell = board[src]
+        const dest_cell = board[dest]
+        // Save source piece and color since we will change it later
         const src_piece = src_cell.piece
         const src_color = src_cell.pieceColor
+        // Determine if it's an en passant move or not
+        const isPawn = src_piece === 'pawn'
+        const isDiagonal = src_cell.col !== dest_cell.col
+        const isEmptyDest = dest_cell.piece === 'none'
+        const isEnPassant: boolean = isPawn && isDiagonal && isEmptyDest
+        const isPromotionRow: boolean = dest_cell.row === 1 || dest_cell.row === 8
 
         // If a piece moves, mark it as uncastleable
         if (board[src].castleable) { board[src].castleable = false }
@@ -127,6 +135,10 @@ export class BoardService {
         board[dest].pieceColor = src_color
         board[src].piece = 'none'
         board[src].pieceColor = 'none'
+
+        if (isPawn && isPromotionRow && promotion) {
+            board[dest].piece = promotion
+        }
 
         // If it's a castle move, also move the rook
         if (src_piece === 'king' && Math.abs(src - dest) === 2) {
@@ -139,6 +151,16 @@ export class BoardService {
             board[src + direction].pieceColor = board[src + direction * rook_distance].pieceColor
             board[src + direction * rook_distance].piece = 'none'
             board[src + direction * rook_distance].pieceColor = 'none'
+        }
+
+        // If it's a en passant move, also remove the adjacent piece
+        if (isEnPassant) {
+
+            const direction = src_color === 'black' ? 1 : -1
+            const capturedIndex = dest - direction * 8
+
+            board[capturedIndex].piece = 'none'
+            board[capturedIndex].pieceColor = 'none'
         }
         return board
     }
