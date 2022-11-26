@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Cell } from './interfaces/cell.interface';
-
+import { Piece } from './interfaces/piece.interface';
 
 @Injectable()
 export class BoardService {
@@ -17,12 +17,21 @@ export class BoardService {
     rowColToCoord(row: number, col: number): string {
         let row_coord = 9 - row
         let col_coord = String.fromCharCode(96 + col)
-        return row_coord.toString() + col_coord.toString();
+        return col_coord.toString() + row_coord.toString();
+    }
+    rowFromCoord(coord: string = 'a4'): number {
+        return 9 - parseInt(coord[1])
+    }
+    colFromCoord(coord: string = 'a4'): number {
+        return coord.charCodeAt(0) - 96
     }
     rowColToIndex(row: number, col: number) { return (row - 1) * 8 + (col - 1) }
     pieceToNotation(piece: string): string {
-        if (piece = 'knight') return 'N'
+        if (piece === 'knight') { return 'N' }
         return piece[0]
+    }
+    rankFromRow(row: number, color: string) {
+        return color === 'black' ? row : 9 - row
     }
 
 
