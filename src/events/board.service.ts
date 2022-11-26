@@ -176,7 +176,7 @@ export class BoardService {
 
 
     // VERIFY MOVES
-    getPossibleMoves(board: Cell[], index: number): { row: number, col: number }[] {
+    getPossibleMoves(board: Cell[], index: number, last_move: string): { row: number, col: number, promotion?: string }[] {
         const cell = board[index]
         const piece = cell.piece
 
@@ -194,12 +194,12 @@ export class BoardService {
                 return this.getBishopMoves(board, index);
             case 'knight':
                 return this.getKnightMoves(board, index);
-            case 'pawn':
-                return this.getPawnMoves(board, index);
             case 'king':
                 return this.getKingMoves(board, index);
             case 'queen':
                 return this.getQueenMoves(board, index);
+            case 'pawn':
+                return this.getPawnMoves(board, index, last_move);
         }
     }
 
@@ -304,7 +304,7 @@ export class BoardService {
 
         return moves
     }
-    getPawnMoves(board: Cell[], index: number): { row: number, col: number }[] {
+    getPawnMoves(board: Cell[], index: number, last_move: string): { row: number, col: number }[] {
         const cell = board[index]
         const color = cell.pieceColor
         const row = cell.row
@@ -324,7 +324,16 @@ export class BoardService {
             if (c === 0) {
                 if (move_cell.pieceColor === 'none') {
                     // 1 square forward
-                    moves.push(move)
+                    // if it's a promtion move, each promotion is pushed in as a different move
+                    if (move.row === 8 || move.row === 1) {
+                        let possible_promotion: Piece[] = ['queen', 'rook', 'knight', 'bishop']
+                        for (let i = 0; i < possible_promotion.length; i++) {
+                            moves.push({...move, promotion: possible_promotion[i]})
+                        }
+                    }
+                    else {
+                        moves.push(move)
+                    }
                     // 2 squares forward
                     if (rank === 2) {
                         let jump = { row: row + direction * 2, col: col + c }
@@ -333,11 +342,49 @@ export class BoardService {
                     }
                 }
             }
-            // Diagonal captures can be made if diagonall cells
+            // Diagonal captures
             if (c !== 0) {
-                if (move_cell.pieceColor === color) { continue } // can't capture allied piece
-                if (move_cell.pieceColor === 'none') { continue } // can't capture empty cell 
-                moves.push(move)
+                // can't capture allied piece
+                if (move_cell.pieceColor === color) {
+                    console.log('Allied diagonal cell')
+                }
+                // can't capture if the diagonal cell is empty, but might be able to en passant
+                else if (move_cell.pieceColor === 'none') {
+                    // En passant can only be done on rank 5
+                    if (rank === 5 && last_move.length == 5) {
+                        let adj = { row: row, col: col + c }
+                        let adj_cell = board[this.rowColToIndex(adj.row, adj.col)]
+
+                        // Can only en passant if adjacent piece is of the opposite color 
+                        if (adj_cell.pieceColor !== color && adj_cell.pieceColor !== 'none') {
+                            let last_piece = last_move.slice(0, 1)
+                            let last_src = last_move.slice(1, 3)
+                            let last_dest = last_move.slice(3, 5)
+
+                            let isPawnMove: boolean = last_piece.toLowerCase() === 'p'
+                            let isAdjDest: boolean = last_dest === adj_cell.coordinate
+                            let isJumpMove: boolean =
+                                this.rowFromCoord(last_src) === adj.row + direction * 2 &&
+                                this.colFromCoord(last_src) === adj.col
+
+                            if (isPawnMove && isAdjDest && isJumpMove) {
+                                moves.push(move)
+                            }
+                        }
+                    }
+                }
+                // can capture if the diagonal piece is of a opposite color
+                else {
+                    if (move.row === 8 || move.row === 1) {
+                        let possible_promotion: Piece[] = ['queen', 'rook', 'knight', 'bishop']
+                        for (let i = 0; i < possible_promotion.length; i++) {
+                            moves.push({...move, promotion: possible_promotion[i]})
+                        }
+                    }
+                    else {
+                        moves.push(move)
+                    }
+                }
             }
         }
 
