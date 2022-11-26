@@ -134,9 +134,21 @@ export class EventsGateway {
   }
 
   @SubscribeMessage('get_possible_moves')
-  async getPossibleMoves(@MessageBody() data: any): Promise<any> {
-    const {board, index} = data
-    return this.boardService.getPossibleMoves(board, index)
+  async getPossibleMoves(
+    @MessageBody() data: { move: { src: number }, session_id: string },
+    @ConnectedSocket() socket: Socket
+  ): Promise<{row: number, col: number}[]> {
+    const { move, session_id } = data
+    const { src } = move // src is an index of the board array 
+    const result = this.eventsService.findMatch(socket.id, session_id)
+
+    if (!result) { return [] }
+    const { match, player } = result
+    const { board, moves } = match
+    const last_move = moves.length === 0 ? '' : moves[moves.length - 1]
+    const possible_moves = this.boardService.getPossibleMoves(board, src, last_move)
+
+    return possible_moves
   }
 
   }
