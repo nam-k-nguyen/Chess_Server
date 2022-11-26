@@ -75,34 +75,46 @@ export class EventsGateway {
     return 'exited queue'
   }
 
+
+
   // MATCH
   @SubscribeMessage('verify_move')
   verifyMove(
-    @MessageBody() data: { move: { src: number, dest: number }, session_id: string },
+    @MessageBody() data: { move: { src: number, dest: number, promotion: Piece }, session_id: string },
     @ConnectedSocket() socket: Socket
   ): string {
     const { move, session_id } = data
-    const { src, dest } = move // src and dest are indexes of the board array 
+    const { src, dest, promotion } = move // src and dest are indexes of the board array 
     const result = this.eventsService.findMatch(socket.id, session_id)
-
+    console.log(move)
+    
     if (!result) { return 'match not found' }
-    const {match, player} = result
-    const {board, moves} = match
-    const { row, col } = board[dest]
-    const possible_moves = this.boardService.getPossibleMoves(board, src)
+    const { match, player } = result
+    const { board, moves } = match
+    const { piece: src_piece } = board[src]
+    const { row: dest_row, col: dest_col } = board[dest]
+    const last_move = moves.length === 0 ? '' : moves[moves.length - 1]
+    const possible_moves = this.boardService.getPossibleMoves(board, src, last_move)
     const current_turn_color = moves.length % 2 === 0 ? 'white' : 'black'
-    
-    const valid_player = match[player].color === current_turn_color
-    if (!valid_player) {return 'invalid player'}
-    
-    const valid_color = board[src].pieceColor === current_turn_color
-    if (!valid_color) {return 'invalid color'}
-    
-    const valid_move = possible_moves.find(cell => cell.row === row && cell.col === col)
-    if (!valid_move) {return 'invalid move'}
 
+    const valid_player = match[player].color === current_turn_color
+    if (!valid_player) { return 'invalid player' }
+
+    const valid_color = board[src].pieceColor === current_turn_color
+    if (!valid_color) { return 'invalid color' }
+
+    if (src_piece === 'pawn' && (dest_row === 8 || dest_row === 1)) {
+      const valid_promotion = ['queen', 'rook', 'bishop', 'knight'].includes(promotion)
+      if (!valid_promotion) { return 'invalid promotion piece' }
+      const valid_move = possible_moves.find(cell => cell.row === dest_row && cell.col === dest_col && cell.promotion == promotion)
+      if (!valid_move) { return 'invalid move' }
+    } else {
+      const valid_move = possible_moves.find(cell => cell.row === dest_row && cell.col === dest_col)
+      if (!valid_move) { return 'invalid move' }
+    }
+    
     moves.push(this.boardService.getMoveNotation(board, src, dest))
-    this.boardService.updateBoard(board, src, dest)
+    this.boardService.updateBoard(board, src, dest, promotion)
     this.getSocketByID(match.p1.socket_id).emit('update_board', board)
     this.getSocketByID(match.p2.socket_id).emit('update_board', board)
 
