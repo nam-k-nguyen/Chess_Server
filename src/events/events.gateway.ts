@@ -47,7 +47,7 @@ export class EventsGateway {
     const new_session_id = this.eventsService.handleUserSession(socket, session_id);
     const found_match = this.eventsService.findMatch(socket.id, new_session_id)
     if (found_match) {
-      socket.emit('update_board', found_match.match.board)
+      socket.emit('enter_match', found_match.match.board)
     }
   }
 
