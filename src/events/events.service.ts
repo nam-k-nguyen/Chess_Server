@@ -64,15 +64,15 @@ export class EventsService {
     }
     // Find a match with one player in the match having the provided socket id or session id
     // Return on object containing the found match and the name of the player that was found  
-    findMatch(socket_id: string, session_id: string): {match: Match, player: string} | undefined {
-        let p1_match: boolean
-        let p2_match: boolean
+    findMatch(socket_id: string, session_id: string): { match: Match, player: string } | undefined {
+        let p1_match: boolean // true if found a match with matching id with the first player
+        let p2_match: boolean // true if found a match with matching id with the second player
         let found_match = this.matches.find(match => {
             p1_match = match.p1.socket_id === socket_id || match.p1.session_id === session_id
             p2_match = match.p2.socket_id === socket_id || match.p2.session_id === session_id
             return p1_match || p2_match
         })
-        return found_match ? {match: found_match, player: p1_match === true ? 'p1' : 'p2'} : undefined
+        return found_match ? { match: found_match, player: p1_match === true ? 'p1' : 'p2' } : undefined
     }
 
 
@@ -130,36 +130,41 @@ export class EventsService {
 
     // HANDLER
     handleUserSession(socket: Socket, session_id: string): string {
-        const found_session: Session | undefined = this.findSession(null, session_id)
-        const found_socket: Session | undefined = this.findSession(socket.id, null)
+        const found_session_by_session_id: Session | undefined = this.findSession(null, session_id)
+        const found_session_by_socket_id: Session | undefined = this.findSession(socket.id, null)
         const uuid: string = v4();
 
-        if (found_session) {
-            console.log('\nUser\'s session ID is in our sessions list\n', found_session)
+        if (found_session_by_session_id) {
+            console.log('\nUser\'s session ID is in our sessions list\n', found_session_by_session_id)
             this.updateSession(socket.id, session_id, 'socket');
             this.clearSessionTimeout(session_id)
             this.findSession(null, session_id).timeout = null
             return session_id
         }
-        else if (found_socket) {
-            console.log(`\nUser\'s socket ID is in our sessions list\n`, found_socket)
+        else if (found_session_by_socket_id) {
+            console.log(`\nUser\'s socket ID is in our sessions list\n`, found_session_by_socket_id)
             this.updateSession(socket.id, uuid, 'session');
             socket.emit('update_session_id', uuid)
             return uuid
         }
         else {
-            console.log('\nUser\'s session ID is not in our session list\n')
+            console.log('\nUser\'s session ID and socket ID is not in our session list\n')
             socket.emit('update_session_id', uuid)
             this.addToSessions({ socket_id: socket.id, session_id: uuid, timeout: null })
             return uuid
         }
     }
     handleUserQueue(socket_id: string, session_id: string): null | Match {
-        if (this.findQueuer(socket_id, null)) {
-            this.updateQueuer(socket_id, session_id, 'session'); return null
+        const found_queuer_by_socket_id = this.findQueuer(socket_id, null)
+        const found_queuer_by_session_id = this.findQueuer(null, session_id)
+
+        if (found_queuer_by_socket_id) {
+            this.updateQueuer(socket_id, session_id, 'session');
+            return null
         }
-        if (this.findQueuer(null, session_id)) {
-            this.updateQueuer(socket_id, session_id, 'socket'); return null
+        if (found_queuer_by_session_id) {
+            this.updateQueuer(socket_id, session_id, 'socket');
+            return null
         }
         this.addToQueue({ socket_id: socket_id, session_id: session_id })
 
