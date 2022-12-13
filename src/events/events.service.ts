@@ -175,4 +175,31 @@ export class EventsService {
         }
         return null
     }
+    handleUserMatch(socket_id: string, session_id: string, new_session_id: string): any {
+        // new_session_id parameter is provided by handleUserSession
+        const found_match_by_player_socket_id = this.findMatch(socket_id, null)
+        const found_match_by_player_session_id = this.findMatch(null, session_id)
+
+        // Found a player in a match with provided session id
+        if (found_match_by_player_session_id) {
+            console.log(`\nPlayer\'s session ID is in our match list\n`, found_match_by_player_session_id)
+            // Update socket id and return found match object
+            let { match, player } = found_match_by_player_session_id
+            match[player].socket_id = socket_id
+            return found_match_by_player_session_id
+        } 
+        // Found a player in a match with provided socket id
+        else if (found_match_by_player_socket_id) {
+            console.log(`\nPlayer\'s socket ID is in our match list\n`, found_match_by_player_socket_id)
+            // Update session id and return found match object
+            let { match, player } = found_match_by_player_socket_id
+            match[player].session_id = new_session_id
+            return found_match_by_player_socket_id
+        } 
+        // No match that has a player with the provided socket id or session id
+        else {
+            console.log(`\nPlayer\'s socket ID and session Id is not in our match list\n`)
+            // Don't need to do anything else since player is not currently in a match
+        }
+    }
 }
