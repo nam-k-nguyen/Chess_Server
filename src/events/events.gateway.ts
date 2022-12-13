@@ -46,7 +46,7 @@ export class EventsGateway {
   clientConnect(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): any {
     console.log(`\nA new user has connected\n- session ID : ${session_id}\n-  socket ID : ${socket.id}`)
     const new_session_id = this.eventsService.handleUserSession(socket, session_id);
-    const found_match = this.eventsService.findMatch(socket.id, new_session_id)
+    const found_match = this.eventsService.handleUserMatch(socket.id, session_id, new_session_id);
     if (found_match) {
       socket.emit('enter_match', found_match.match.board)
     }
