@@ -2,7 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const options = {
+    cors: true,
+    interface: 'eth0'
+  }
+  const app = await NestFactory.create(AppModule, options);
   app.enableCors();
 
   // Uncomment these lines to use the Redis adapter:
