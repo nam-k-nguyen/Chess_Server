@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const options = {
     cors: true,
-    interface: 'eth0'
+    // interface: 'eth0'
   }
   const app = await NestFactory.create(AppModule, options);
   app.enableCors();
@@ -14,7 +14,7 @@ async function bootstrap() {
   // await redisIoAdapter.connectToRedis();
   // app.useWebSocketAdapter(redisIoAdapter);
 
-  await app.listen(process.env.PORT || 3001, "3.87.183.134");
+  await app.listen(process.env.PORT || 3001, "eth0");
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
