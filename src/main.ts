@@ -10,7 +10,7 @@ async function bootstrap() {
   // await redisIoAdapter.connectToRedis();
   // app.useWebSocketAdapter(redisIoAdapter);
 
-  await app.listen(process.env.PORT || 3001);
+  await app.listen(process.env.PORT || 3001, "3.87.183.134");
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
