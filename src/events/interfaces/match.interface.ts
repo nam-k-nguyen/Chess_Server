@@ -4,6 +4,6 @@ import { Cell } from "./cell.interface"
 export interface Match {
     p1: Player
     p2: Player
-    board?: Cell[]
+    board: Cell[]
     moves?: string[]
 }

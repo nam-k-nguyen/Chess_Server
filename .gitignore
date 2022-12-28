@@ -20,3 +20,6 @@ npm-debug.log
 # dist
 /dist
 .vercel
+
+#custom
+.notes.ts

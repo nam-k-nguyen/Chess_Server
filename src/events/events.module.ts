@@ -5,7 +5,7 @@ import { BoardService } from './board.service';
 import { PlayerModule } from 'src/player/player.module';
 
 @Module({
-  imports: [PlayerModule],
+  imports: [PlayerModule  ],
   providers: [EventsGateway, EventsService, BoardService],
 
 })

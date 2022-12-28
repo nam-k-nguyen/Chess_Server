@@ -181,11 +181,12 @@ export class BoardService {
         const piece = cell.piece
 
         // TODO
-        // pieces can't move to allied cells
-        // Enable castling
-        // Enable en passant
-        // Pawns move one direction
-        // Pawn promotion
+        // pieces can't move to allied cells - done
+        // Enable castling - done
+        // Enable en passant - done
+        // Pawns move one direction - done
+        // Pawn promotion 
+        // Fix row col to coord funcion (right now row and col are swapped) - done
 
         switch (piece) {
             case 'rook':

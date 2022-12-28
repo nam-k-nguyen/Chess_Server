@@ -52,6 +52,9 @@ export class EventsService {
             }
         }))
     }
+    getMoves(socket_id: string, session_id: string): string[] {
+        return this.findMatch(socket_id, session_id).match.moves
+    }
 
 
 
@@ -89,7 +92,7 @@ export class EventsService {
     updateMatchPlayer(socket_id: string, session_id: string, target: 'socket' | 'session') {
         let result = this.findMatch(socket_id, session_id)
         if (!result) return
-        
+
         let found_match = result.match
         let found_player = result.player
 

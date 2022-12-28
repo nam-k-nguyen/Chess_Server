@@ -87,7 +87,7 @@ export class EventsGateway {
     const { move, session_id } = data
     const { src, dest, promotion } = move // src and dest are indexes of the board array 
     const result = this.eventsService.findMatch(socket.id, session_id)
-    console.log(move)
+    console.log('Client emit "verify_move" event with the following move: ', move);
     
     if (!result) { return 'match not found' }
     const { match, player } = result
@@ -152,5 +152,28 @@ export class EventsGateway {
     return possible_moves
   }
 
+
+
+  // GETTER
+  @SubscribeMessage('get_queue')
+  async getQueue(@MessageBody() data: any): Promise<object[]> { return this.eventsService.getQueue(); }
+  @SubscribeMessage('get_matches')
+  async getMatches(@MessageBody() data: any): Promise<object[]> { return this.eventsService.getMatches(); }
+  @SubscribeMessage('get_sessions')
+  async getSessions(@MessageBody() data: any): Promise<object[]> { return this.eventsService.getPrintableSessions(); }
+  @SubscribeMessage('get_moves')
+  async getMoves(@MessageBody() session_id: string, @ConnectedSocket() socket: Socket): Promise<string[]> {
+    return this.eventsService.getMoves(socket.id, session_id);
+  }
+
+
+
+  // DEBUGGER
+  @SubscribeMessage('create_room')
+  async createRoom(
+    @MessageBody() session_id: string,
+    @ConnectedSocket() socket: Socket
+  ): Promise<any> {
+    return this.boardService.getEmptyBoard()
   }
 }
